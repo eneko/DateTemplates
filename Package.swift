@@ -2,13 +2,13 @@
 import PackageDescription
 
 let package = Package(
-    name: "DateFormats",
+    name: "DateTemplates",
     products: [
-        .library(name: "DateFormats", targets: ["DateFormats"])
+        .library(name: "DateTemplates", targets: ["DateTemplates"])
     ],
     dependencies: [],
     targets: [
-        .target(name: "DateFormats", dependencies: []),
-        .testTarget(name: "DateFormatsTests", dependencies: ["DateFormats"])
+        .target(name: "DateTemplates", dependencies: []),
+        .testTarget(name: "DateTemplatesTests", dependencies: ["DateTemplates"])
     ]
 )
