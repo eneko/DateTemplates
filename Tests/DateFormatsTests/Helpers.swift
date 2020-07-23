@@ -4,6 +4,9 @@ import Foundation
 
 let enUS = Locale(identifier: "en_US")
 let esES = Locale(identifier: "es_ES")
+let arEG = Locale(identifier: "ar_EG")
+let ruRU = Locale(identifier: "ru_RU")
+let jaJP = Locale(identifier: "ja_JP")
 
 // MARK: TimeZones
 
@@ -24,7 +27,7 @@ let cesar = Date(day: 15, month: 3, year: 44, era: 0)
 
 extension Date {
     init(day: Int, month: Int, year: Int, era: Int? = nil,
-         hours: Int = 0, minutes: Int = 0, seconds: Int = 0, timeZone: TimeZone = .current) {
+         hours: Int = 0, minutes: Int = 0, seconds: Int = 0, timeZone: TimeZone? = .current) {
         let components = DateComponents(calendar: .current, timeZone: timeZone, era: era,
                                         year: year, month: month, day: day,
                                         hour: hours, minute: minutes, second: seconds)

@@ -23,6 +23,21 @@ final class FormattingTests: XCTestCase {
 
     // MARK: Custom Date Templates
 
+    func testWeekdayAndTime() {
+        let template = DateTemplate().dayOfWeek(.full).time()
+        XCTAssertEqual(template.localizedString(from: epoch, locale: enUS, timeZone: utc), "Thursday 12:00 AM")
+        XCTAssertEqual(template.localizedString(from: epoch, locale: esES, timeZone: utc), "jueves, 0:00")
+        XCTAssertEqual(template.localizedString(from: epoch, locale: jaJP, timeZone: utc), "木曜日 0:00")
+        XCTAssertEqual(template.localizedString(from: epoch, locale: ruRU, timeZone: utc), "четверг 00:00")
+        XCTAssertEqual(template.localizedString(from: epoch, locale: arEG, timeZone: utc), "الخميس ١٢:٠٠ ص")
+    }
+
+    func testWeekdayDayMonthYear() {
+        let template = DateTemplate().dayOfWeek().day().month(.abbreviated).year()
+        XCTAssertEqual(template.localizedString(from: epoch, locale: enUS, timeZone: utc),
+                       "Thu, Jan 1, 1970")
+    }
+
     func testCesarsDeath() {
         let template = DateTemplate().day().month(.abbreviated).year(length: 2).era()
         XCTAssertEqual(template.localizedString(from: cesar, locale: enUS),
@@ -91,4 +106,53 @@ final class FormattingTests: XCTestCase {
         XCTAssertEqual(template.localizedString(from: futurama, locale: esES, timeZone: utc),
                        "23:59:59")
     }
+
+    /// Period should have no effect when used as a template (localized), if clock is in 24hr format
+    func testTimeAndPeriod() {
+        let template = DateTemplate().hours().period()
+        XCTAssertEqual(template.localizedString(from: futurama, locale: enUS, timeZone: utc),
+                       "11 PM")
+        XCTAssertEqual(template.localizedString(from: futurama, locale: esES, timeZone: utc),
+                       "23")
+    }
+
+    /// Period standalone, will always render
+    func testPeriod() {
+        let template = DateTemplate().period()
+        XCTAssertEqual(template.localizedString(from: futurama, locale: enUS, timeZone: utc),
+                       "PM")
+        XCTAssertEqual(template.localizedString(from: futurama, locale: esES, timeZone: utc),
+                       "p. m.")
+    }
+
+    func testHoursLocalized() {
+        let date = Date(day: 1, month: 1, year: 2020, hours: 0, minutes: 0, seconds: 0)
+        XCTAssertEqual(DateTemplate().hours().localizedString(from: date, locale: esES), "0")
+        XCTAssertEqual(DateTemplate().hours(.h12).localizedString(from: date, locale: esES), "12 a. m.")
+        XCTAssertEqual(DateTemplate().hours(.h24).localizedString(from: date, locale: esES), "0")
+        XCTAssertEqual(DateTemplate().hours(.h1_12).localizedString(from: date, locale: esES), "12 a. m.")
+        XCTAssertEqual(DateTemplate().hours(.h0_23).localizedString(from: date, locale: esES), "0")
+        XCTAssertEqual(DateTemplate().hours(.h0_11).localizedString(from: date, locale: esES), "12 a. m.")
+        XCTAssertEqual(DateTemplate().hours(.h1_24).localizedString(from: date, locale: esES), "0")
+    }
+
+    func testHoursNonLocalized() {
+        let date = Date(day: 1, month: 1, year: 2020, hours: 0, minutes: 0, seconds: 0)
+        XCTAssertEqual(DateTemplate().hours().nonLocalizedString(from: date, locale: esES), "")
+        XCTAssertEqual(DateTemplate().hours(.h12).nonLocalizedString(from: date, locale: esES), "12")
+        XCTAssertEqual(DateTemplate().hours(.h24).nonLocalizedString(from: date, locale: esES), "0")
+        XCTAssertEqual(DateTemplate().hours(.h1_12).nonLocalizedString(from: date, locale: esES), "12")
+        XCTAssertEqual(DateTemplate().hours(.h0_23).nonLocalizedString(from: date, locale: esES), "0")
+        XCTAssertEqual(DateTemplate().hours(.h0_11).nonLocalizedString(from: date, locale: esES), "0")
+        XCTAssertEqual(DateTemplate().hours(.h1_24).nonLocalizedString(from: date, locale: esES), "24")
+    }
+
+    func testTimeZone() {
+        let timeZone = TimeZone(identifier: "America/Los_Angeles")
+        let date = Date(day: 1, month: 1, year: 2020, timeZone: timeZone)
+        XCTAssertEqual(DateTemplate().time().timeZone()
+                        .localizedString(from: date, locale: enUS, timeZone: timeZone),
+                       "12:00 AM PST")
+    }
+
 }

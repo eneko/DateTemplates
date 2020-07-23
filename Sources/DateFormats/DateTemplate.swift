@@ -68,22 +68,6 @@ extension DateTemplate {
     }
 }
 
-extension DateTemplate {
-    /// Time format, for hours and period
-    /// - `.auto`: preferred device format (12hr or 24hr), depending on user settings
-    /// - `.h12`: 12-hour-cycle (1-12). Period will appear (am/pm)
-    /// - `.h24`: 24-hour-cycle (0-23). Period will not appear
-    /// - `.h11`: 12-hour-cycle (0-11). Period will appear (am/pm)
-    /// - `.h23`: 24-hour-cycle (1-24). Period will not appear
-    public enum TimeForm {
-        case auto
-        case h12
-        case h24
-        case h11
-        case h23
-    }
-}
-
 // MARK: - Era Symbols
 
 extension DateTemplate {
@@ -220,7 +204,7 @@ extension DateTemplate {
 
 extension DateTemplate {
     /// Append Month to date format template.
-    /// - Parameter form: Form to be used for rendering the Month. Defaults to `.zeroPadded`
+    /// - Parameter form: Form to be used for rendering the Month. Defaults to `.numeric`
     ///     ```
     ///     // Form         Template    Example
     ///     .numeric        "M"         9
@@ -232,7 +216,7 @@ extension DateTemplate {
     ///     ```
     ///     Form `.short` has no effect and does not alter the template.
     /// - Returns: Updated date format template
-    public func month(_ form: Form = .zeroPadded) -> DateTemplate {
+    public func month(_ form: Form = .numeric) -> DateTemplate {
         switch form {
         case .numeric, .zeroPadded, .abbreviated, .full, .narrow:
             return appending(element: form.element("M"))
@@ -242,7 +226,7 @@ extension DateTemplate {
     }
 
     /// Append stand-alone Month to date format template.
-    /// - Parameter form: Form to be used for rendering the stand-alone Month. Defaults to `.zeroPadded`
+    /// - Parameter form: Form to be used for rendering the stand-alone Month. Defaults to `.numeric`
     ///     ```
     ///     // Form         Template    Example
     ///     .numeric        "L"         9
@@ -254,7 +238,7 @@ extension DateTemplate {
     ///     ```
     ///     Form `.short` has no effect and does not alter the template.
     /// - Returns: Updated date format template
-    public func standAloneMonth(_ form: Form = .zeroPadded) -> DateTemplate {
+    public func standAloneMonth(_ form: Form = .numeric) -> DateTemplate {
         switch form {
         case .numeric, .zeroPadded, .abbreviated, .full, .narrow:
             return appending(element: form.element("L"))
@@ -376,9 +360,12 @@ extension DateTemplate {
 
 extension DateTemplate {
     /// Append period (am/pm) to date format template.
+    ///
+    /// When used on a template, it has no effect if the clock is in 24hr format
+    ///
     /// - Example: AM, PM
     /// - Returns: Updated date format template
-    func period() -> DateTemplate {
+    public func period() -> DateTemplate {
         appending(element: "a")
     }
 }
@@ -386,23 +373,94 @@ extension DateTemplate {
 // MARK: - Hour Symbols
 
 extension DateTemplate {
+    /// Time format, for hours and period
+    /// - `.auto`: preferred device format (12hr or 24hr), depending on user settings
+    /// - `.h12`: 12-hour-cycle (1-12). Period will appear (am/pm)
+    /// - `.h24`: 24-hour-cycle (0-23). Period will not appear
+    /// - `.h1_12`: 12-hour-cycle (1-12). Period will appear (am/pm). Same as `.h12`
+    /// - `.h0_23`: 24-hour-cycle (0-23). Period will not appear. Same as `.h24`
+    /// - `.h0_11`: Alternate 12-hour-cycle (0-11). Period will appear (am/pm)
+    /// - `.h1_24`: Alternate 24-hour-cycle (1-24). Period will not appear
+    public enum TimeForm {
+        case auto
+        case h12
+        case h24
+        case h1_12
+        case h0_23
+        case h0_11
+        case h1_24
+    }
+
+    /// Append Hours and Minutes to date format template.
+    /// Hours use `.auto` form (see `hours()`).
+    /// - Returns: Updated date format template
+    public func time() -> DateTemplate {
+        return hours().minutes()
+    }
+
     /// Append Hours to date format template.
-    /// - Example: 5
+    ///
+    /// - Parameter form: Form to be used for rendering the Hour. Defaults to `.auto`
+    ///     ```
+    ///     // Form         Template    Example
+    ///     .auto           "j"         (Device dependent)
+    ///     .h12, .h1_12    "h"         12
+    ///     .h24, .h0_23    "H"         0
+    ///     .h0_11          "K"         0
+    ///     .h1_24          "k"         24
+    ///     ```
+    ///     Notes:
+    ///     - `.auto` should only be used as template. Will return no output when used as
+    ///       strict date format.
+    ///     - `.h0_11` and `.h1_24` will match `.h12` and `.h24` respectively, when
+    ///       used in a template. Only when used as strict date format will behave differently.
     /// - Returns: Updated date format template
     public func hours(_ form: TimeForm = .auto) -> DateTemplate {
-        appending(element: "j")
+        switch form {
+        case .auto:
+            return appending(element: "j")
+        case .h12, .h1_12:
+            return appending(element: "h")
+        case .h24, .h0_23:
+            return appending(element: "H")
+        case .h0_11:
+            return appending(element: "K")
+        case .h1_24:
+            return appending(element: "k")
+        }
     }
 
     /// Append zero-padded Hours to date format template.
-    /// - Example: 05
+    ///
+    /// - Parameter form: Form to be used for rendering the zero-padded Hour. Defaults to `.auto`
+    ///     ```
+    ///     // Form         Template    Example
+    ///     .auto           "jj"        (Device dependent)
+    ///     .h12, .h1_12    "hh"        12
+    ///     .h24, .h0_23    "HH"        00
+    ///     .h0_11          "KK"        00
+    ///     .h1_24          "kk"        24
+    ///     ```
+    ///     Notes:
+    ///     - `.auto` should only be used as template. Will return no output when used as
+    ///       strict date format.
+    ///     - `.h0_11` and `.h1_24` will match `.h12` and `.h24` respectively, when
+    ///       used in a template. Only when used as strict date format will behave differently.
     /// - Returns: Updated date format template
     public func paddedHours(_ form: TimeForm = .auto) -> DateTemplate {
-        appending(element: "jj")
+        switch form {
+        case .auto:
+            return appending(element: "jj")
+        case .h12, .h1_12:
+            return appending(element: "hh")
+        case .h24, .h0_23:
+            return appending(element: "HH")
+        case .h0_11:
+            return appending(element: "KK")
+        case .h1_24:
+            return appending(element: "kk")
+        }
     }
-
-//    public func clockFormat() -> String {
-//
-//    }
 }
 
 // MARK: - Minute Symbols
@@ -439,19 +497,83 @@ extension DateTemplate {
     public func nonPaddedSeconds() -> DateTemplate {
         appending(element: "s")
     }
+
+    /// Append Fractional Seconds to date format template.
+    ///
+    /// Truncates (like other time fields) to the count of letters.
+    /// Example shows display using pattern SSSS for seconds value 12.34567
+    ///
+    /// - Example: 3456
+    /// - Returns: Updated date format template
+    public func fractionalSeconds(length: Int = 3) -> DateTemplate {
+        appending(element: Array(repeating: "S", count: length).joined())
+    }
+
+    /// Append Milliseconds in Day to date format template.
+    ///
+    /// This field behaves exactly like a composite of all time-related fields, not including
+    /// the zone fields. As such, it also reflects discontinuities of those fields on DST
+    /// transition days. On a day of DST onset, it will jump forward. On a day of DST
+    /// cessation, it will jump backward. This reflects the fact that is must be combined
+    /// with the offset field to obtain a unique local time value.
+    ///
+    /// - Example: 69540000
+    /// - Returns: Updated date format template
+    public func millisecondsInDay(length: Int = 3) -> DateTemplate {
+        appending(element: Array(repeating: "A", count: length).joined())
+    }
 }
 
-// MARK: - Templating helpers
+// MARK: - TimeZone Symbols
 
-//extension DateTemplate {
-//    public func space() -> DateTemplate {
-//        appending(element: " ")
-//    }
-//
-//    public func literal(text: String) -> DateTemplate {
-//        appending(element: "'\(text)'")
-//    }
-//}
+extension DateTemplate {
+    /// Append Time Zone Abbreviation to date format template.
+    /// - Example: PDT
+    /// - Returns: Updated date format template
+    public func timeZone() -> DateTemplate {
+        appending(element: "z")
+    }
+
+    /// Append Time Zone Name to date format template.
+    /// - Example: Pacific Daylight Time
+    /// - Returns: Updated date format template
+    public func timeZoneName() -> DateTemplate {
+        appending(element: "zzzz")
+    }
+
+    /// Append Time Zone Identifier to date format template.
+    /// - Example: America/Los_Angeles
+    /// - Returns: Updated date format template
+    public func timeZoneIdentifier() -> DateTemplate {
+        appending(element: "VV")
+    }
+
+    /// Append Time Zone offset to date format template.
+    ///
+    /// - Parameter form: Form to be used for rendering the Time Zone. Defaults to `.abbreviated`
+    ///     ```
+    ///     // Form         Template    Example
+    ///     .numeric
+    ///     .zeroPadded
+    ///     .abbreviated    "x"         -08, +0530
+    ///     .full           "xx"        -0800
+    ///     .narrow         "xxx"       -08:00
+    ///     .short
+    ///     ```
+    /// - Returns: Updated date format template
+    public func timeZoneOffset(form: Form = .abbreviated) -> DateTemplate {
+        switch form {
+        case .abbreviated:
+            return appending(element: "x")
+        case .full:
+            return appending(element: "xx")
+        case .narrow:
+            return appending(element: "xxx")
+        case .numeric, .zeroPadded, .short:
+            return self
+        }
+    }
+}
 
 // MARK: - Formatting helpers
 
@@ -459,7 +581,7 @@ extension DateTemplate {
     /// Localized date format for the current template and given locale
     /// - Parameter locale: Locale for format localization (defaults to current device locale)
     /// - Returns: Localized date format
-    public func localizedFormat(locale: Locale = .current) -> String {
+    public func localizedFormat(locale: Locale? = .current) -> String {
         DateFormatter.dateFormat(fromTemplate: template, options: 0, locale: locale) ?? template
     }
 
@@ -469,10 +591,27 @@ extension DateTemplate {
     ///   - locale: Locale for date localization (defaults to current device locale)
     ///   - timeZone: Time-zone for date formatting (defaults to current device time-zone)
     /// - Returns: Localized date string
-    public func localizedString(from date: Date, locale: Locale = .current, timeZone: TimeZone = .current) -> String {
+    public func localizedString(from date: Date, locale: Locale? = .current,
+                                timeZone: TimeZone? = .current) -> String {
         let formatter = DateFormatter()
         formatter.locale = locale
         formatter.dateFormat = localizedFormat(locale: locale)
+        formatter.timeZone = timeZone
+        return formatter.string(from: date)
+    }
+
+    /// Non-localized date string using current template as strict date format, and given date, locale and time-zone.
+    /// - Discouraged: It is discouraged to not localize date formats. Use with caution.
+    /// - Parameters:
+    ///   - date: Date to convert to string
+    ///   - locale: Locale for date localization (defaults to current device locale)
+    ///   - timeZone: Time-zone for date formatting (defaults to current device time-zone)
+    /// - Returns: Localized date string
+    public func nonLocalizedString(from date: Date, locale: Locale? = .current,
+                                   timeZone: TimeZone? = .current) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = locale
+        formatter.dateFormat = template
         formatter.timeZone = timeZone
         return formatter.string(from: date)
     }
