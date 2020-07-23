@@ -1,7 +1,7 @@
 # DateTemplates
 
 DateTemplates is a library that provides a simple way to generate date formatting templates
-that can be use to format dates in all Apple platforms and Linux. With a declarative Swift 
+that can be used to format dates in all Apple platforms and Linux. With a declarative Swift 
 syntax that's easy to read and natural to write, `DateTemplate` works seamesly with
 `DateFormatter`. Automatic support for localization makes it easier than ever to work with
 custom date formats.
