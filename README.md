@@ -91,24 +91,24 @@ print(string) // "1/1/1970, 12:00 AM"
 ## Benefits of Using DateTemplates
 
 These are some benefits:
-- ✅ Easily composition of custom localized formats: specify which 
+- Easily composition of custom localized formats: specify which 
     elements to include, and don't worry about the rest. 
-- ✅ Bug prevention:
+- Bug prevention:
   - Ever heard of the [difference between "YYYY" and "yyyy"](https://stackoverflow.com/questions/15133549/difference-between-yyyy-and-yyyy-in-nsdateformatter)?
   - How about the difference between "MM" and "mm"?
   - 12hr vs. 24 hr clock
   - etc.
-- ✅ Not reinventing the wheel. Based on [Unicode Locale Data Markup Language standard for dates](http://www.unicode.org/reports/tr35/tr35-31/tr35-dates.html#Date_Format_Patterns).
-- ✅ 100% compatible with `DateFormatter`.
+- Not reinventing the wheel. Based on [Unicode Locale Data Markup Language standard for dates](http://www.unicode.org/reports/tr35/tr35-31/tr35-dates.html#Date_Format_Patterns).
+- 100% compatible with `DateFormatter`.
 
 
 ## Installation
 
-### For Xcode projects
+### For Xcode projects 🛠
 Add Swift Package to Xcode via `File -> Swift Packages -> Add Package Dependency...`
 
 
-### For Swift Packages
+### For Swift Packages 📦
 Add DateTemplates dependency to `Packages.swift`
 
 ```swift
