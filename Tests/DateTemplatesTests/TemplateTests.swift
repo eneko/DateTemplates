@@ -1,5 +1,5 @@
 import XCTest
-import DateFormats
+import DateTemplates
 
 final class TemplateTests: XCTestCase {
 
